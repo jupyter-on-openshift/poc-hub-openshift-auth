@@ -48,6 +48,17 @@ Note that in this example there is no need to pre-create any service account or 
 
 Once JupyterHub has finished deploying open it from your browser. You should be prompted to login using OpenShift. Accept use of your OpenShift account by the application and you should be able to start your Jupyter notebook server.
 
+Deleting the Application
+------------------------
+
+To delete the JupyterHub instance along with all notebook instances, run:
+
+```
+oc delete all,configmap,pvc,serviceaccount,rolebinding --selector app=jupyterhub
+```
+
+This command is a bit different to deleting the JupyterHub instance when using the [jupyterhub-quickstart](https://github.com/jupyter-on-openshift/jupyterhub-quickstart) repository. This is because the templates in this example create a service account and role binding unique to the application so they also need to be deleted.
+
 How does this Example Work
 --------------------------
 
