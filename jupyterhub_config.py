@@ -1,15 +1,33 @@
 import os
 
-# Use the OpenShift authenticator.
+import json
+import requests
+
+# Work out the public server address for the OpenShift REST API. Don't
+# know how to get this via the REST API client so do a raw request to
+# get it.
+
+server_url = 'https://openshift.default.svc.cluster.local'
+api_url = '%s/oapi' % server_url
+response = requests.get(api_url, verify=False)
+data = json.loads(response.content.decode('UTF-8'))
+address = data['serverAddressByClientCIDRs'][0]['serverAddress']
+
+# Enable the OpenShift authenticator. The OPENSHIFT_URL environment
+# variable must be set before importing the authenticator as it only
+# reads it when module is first imported.
+
+os.environ['OPENSHIFT_URL'] = 'https://%s' % address
 
 from oauthenticator.openshift import OpenShiftOAuthenticator
 c.JupyterHub.authenticator_class = OpenShiftOAuthenticator
 
 # Override scope as oauthenticator code doesn't set it correctly.
+# Need to lodge a PR against oauthenticator to have this fixed.
 
 OpenShiftOAuthenticator.scope = ['user:info']
 
-# Setup OAuth configuration by querying it from environment.
+# Setup authenticator configuration using details from environment.
 
 service_name = os.environ['JUPYTERHUB_SERVICE_NAME']
 
@@ -28,14 +46,14 @@ with open(os.path.join(service_account_path, 'token')) as fp:
 
 c.OpenShiftOAuthenticator.client_secret = client_secret
 
-# Work out hostname for the exposed route. This is tricky as we need
-# to use the REST API to query it.
+# Work out hostname for the exposed route of the JupyterHub server. This
+# is tricky as we need to use the REST API to query it.
 
 import openshift.client
 
 configuration = openshift.client.Configuration()
 
-configuration.host = 'https://openshift.default.svc.cluster.local'
+configuration.host = server_url
 configuration.api_key_prefix['authorization'] = 'Bearer'
 configuration.api_key['authorization'] = client_secret
 configuration.verify_ssl = False
@@ -52,6 +70,6 @@ for route in route_list.items:
         host = route.spec.host
 
 if not host:
-    raise RuntimeError('Cannot calculate external host name for service.')
+    raise RuntimeError('Cannot calculate external host name for JupyterHub.')
 
 c.OpenShiftOAuthenticator.oauth_callback_url = 'https://%s/hub/oauth_callback' % host
