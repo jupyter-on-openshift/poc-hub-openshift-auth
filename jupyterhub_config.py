@@ -35,7 +35,7 @@ OpenShiftOAuthenticator.scope = ['user:info']
 
 service_name = os.environ['JUPYTERHUB_SERVICE_NAME']
 
-service_account_name = '%s-sa' %  service_name
+service_account_name = '%s-hub' %  service_name
 service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
 
 with open(os.path.join(service_account_path, 'namespace')) as fp:
