@@ -31,7 +31,7 @@ jupyterhub-ocp-oauth
 Deploying the Example
 ---------------------
 
-To deploy the example, run:
+Once the images above have finish building, it deploy the example, run:
 
 ```
 oc new-app --template jupyterhub-ocp-oauth
