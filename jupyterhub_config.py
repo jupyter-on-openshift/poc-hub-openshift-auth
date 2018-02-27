@@ -5,13 +5,17 @@ import requests
 
 # Work out the public server address for the OpenShift REST API. Don't
 # know how to get this via the REST API client so do a raw request to
-# get it.
+# get it. Make sure request is done in a session so connection is closed
+# and later calls against REST API don't attempt to reuse it. This is
+# just to avoid potential for any problems with connection reuse.
 
 server_url = 'https://openshift.default.svc.cluster.local'
 api_url = '%s/oapi' % server_url
-response = requests.get(api_url, verify=False)
-data = json.loads(response.content.decode('UTF-8'))
-address = data['serverAddressByClientCIDRs'][0]['serverAddress']
+
+with requests.Session() as session:
+    response = session.get(api_url, verify=False)
+    data = json.loads(response.content.decode('UTF-8'))
+    address = data['serverAddressByClientCIDRs'][0]['serverAddress']
 
 # Enable the OpenShift authenticator. The OPENSHIFT_URL environment
 # variable must be set before importing the authenticator as it only
@@ -50,15 +54,11 @@ c.OpenShiftOAuthenticator.client_secret = client_secret
 # is tricky as we need to use the REST API to query it.
 
 import openshift.client
+import openshift.config
 
-configuration = openshift.client.Configuration()
+openshift.config.load_incluster_config()
 
-configuration.host = server_url
-configuration.api_key_prefix['authorization'] = 'Bearer'
-configuration.api_key['authorization'] = client_secret
-configuration.verify_ssl = False
-
-api_client = openshift.client.ApiClient(configuration)
+api_client = openshift.client.ApiClient()
 oapi_client = openshift.client.OapiApi(api_client)
 
 route_list = oapi_client.list_namespaced_route(namespace)
