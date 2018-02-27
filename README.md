@@ -54,7 +54,7 @@ Deleting the Application
 To delete the JupyterHub instance along with all notebook instances, run:
 
 ```
-oc delete all,configmap,pvc,serviceaccount,rolebinding --selector app=jupyterhub
+oc delete all,configmap,pvc,serviceaccount,rolebinding --selector app=my-jupyterhub
 ```
 
 This command is a bit different to deleting the JupyterHub instance when using the [jupyterhub-quickstart](https://github.com/jupyter-on-openshift/jupyterhub-quickstart) repository. This is because the templates in this example create a service account and role binding unique to the application so they also need to be deleted.
