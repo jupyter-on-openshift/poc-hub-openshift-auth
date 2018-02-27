@@ -31,21 +31,6 @@
                     "required": true
                 },
                 {
-                    "name": "GIT_REPOSITORY_URL",
-                    "value": "https://github.com/jupyter-on-openshift/jupyterhub-ocp-oauth",
-                    "required": true
-                },
-                {
-                    "name": "GIT_REFERENCE",
-                    "value": "master",
-                    "required": true
-                },
-                {
-                    "name": "CONTEXT_DIR",
-                    "value": "",
-                    "required": false
-                },
-                {
                     "name": "JUPYTERHUB_CONFIG",
                     "value": "",
                     "required": false
@@ -100,10 +85,8 @@
                         "source": {
                             "type": "Git",
                             "git": {
-                                "uri": "${GIT_REPOSITORY_URL}",
-                                "ref": "${GIT_REFERENCE}"
-                            },
-                            "contextDir": "${CONTEXT_DIR}"
+                                "uri": "https://github.com/jupyter-on-openshift/jupyterhub-ocp-oauth"
+                            }
                         },
                         "strategy": {
                             "type": "Source",
