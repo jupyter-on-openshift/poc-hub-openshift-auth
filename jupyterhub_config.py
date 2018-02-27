@@ -11,7 +11,9 @@ OpenShiftOAuthenticator.scope = ['user:info']
 
 # Setup OAuth configuration by querying it from environment.
 
-service_account_name = '%s-sa' % os.environ['JUPYTERHUB_SERVICE_NAME']
+service_name = os.environ['JUPYTERHUB_SERVICE_NAME']
+
+service_account_name = '%s-sa' %  service_name
 service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
 
 with open(os.path.join(service_account_path, 'namespace')) as fp:
@@ -31,11 +33,25 @@ c.OpenShiftOAuthenticator.client_secret = client_secret
 
 import openshift.client
 
-openshift.client.configuration.api_key_prefix['authorization'] = 'Bearer'
-openshift.client.configuration.api_key['authorization'] = client_secret
+configuration = openshift.client.Configuration()
 
-api_instance = openshift.client.AdmissionregistrationApi()
+configuration.host = 'https://openshift.default.svc.cluster.local'
+configuration.api_key_prefix['authorization'] = 'Bearer'
+configuration.api_key['authorization'] = client_secret
+configuration.verify_ssl = False
 
-print(api_instance.list_namespaced_route())
+api_client = openshift.client.ApiClient(configuration)
+oapi_client = openshift.client.OapiApi(api_client)
 
-#c.OpenShiftOAuthenticator.oauth_callback_url = os.environ['OAUTH_CALLBACK_URL']
+route_list = oapi_client.list_namespaced_route(namespace)
+
+host = None
+
+for route in route_list.items:
+    if route.metadata.name == service_name:
+        host = route.spec.host
+
+if not host:
+    raise RuntimeError('Cannot calculate external host name for service.')
+
+c.OpenShiftOAuthenticator.oauth_callback_url = 'https://%s/hub/oauth_callback' % host
