@@ -29,7 +29,7 @@ c.JupyterHub.authenticator_class = OpenShiftOAuthenticator
 # Override scope as oauthenticator code doesn't set it correctly.
 # Need to lodge a PR against oauthenticator to have this fixed.
 
-OpenShiftOAuthenticator.scope = ['user:info']
+#OpenShiftOAuthenticator.scope = ['user:info']
 
 # Setup authenticator configuration using details from environment.
 
