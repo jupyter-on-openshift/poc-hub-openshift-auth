@@ -57,11 +57,6 @@
                         "labels": {
                             "app": "${APPLICATION_NAME}"
                         }
-                    },
-                    "spec": {
-                        "lookupPolicy": {
-                            "local": true
-                        }
                     }
                 },
                 {
@@ -174,6 +169,7 @@
                                 "imageChangeParams": {
                                     "automatic": true,
                                     "containerNames": [
+                                        "wait-for-database",
                                         "jupyterhub"
                                     ],
                                     "from": {
@@ -190,9 +186,6 @@
                         },
                         "template": {
                             "metadata": {
-				"annotations": {
-				    "alpha.image.policy.openshift.io/resolve-names": "*"
-                                },
                                 "labels": {
                                     "app": "${APPLICATION_NAME}",
                                     "deploymentconfig": "${APPLICATION_NAME}"
@@ -220,7 +213,7 @@
                                 "containers": [
                                     {
                                         "name": "jupyterhub",
-                                        "image": "${APPLICATION_NAME}:latest",
+                                        "image": "${APPLICATION_NAME}-img:latest",
                                         "ports": [
                                             {
                                                 "containerPort": 8080,
