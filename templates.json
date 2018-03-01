@@ -197,7 +197,7 @@
                                     {
                                         "name": "wait-for-database",
                                         "image": "${APPLICATION_NAME}-img:latest",
-                                        "command": [ "/opt/app-root/scripts/wait-for-database" ],
+                                        "command": [ "wait-for-database" ],
                                         "env": [
                                             {
                                                 "name": "JUPYTERHUB_DATABASE_PASSWORD",
