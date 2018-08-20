@@ -735,13 +735,7 @@
                         "from": {
                             "kind": "ImageStreamTag",
                             "name": "${JUPYTERHUB_NAME}-nb-s2i:latest"
-                        },
-                        "env": [
-                            {
-                                "name": "JUPYTER_MASTER_FILES",
-                                "value": "/opt/app-root/master"
-                            }
-                        ]
+                        }
                     }
                 },
                 "output": {
