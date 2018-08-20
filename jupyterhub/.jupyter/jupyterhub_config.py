@@ -26,11 +26,6 @@ os.environ['OPENSHIFT_URL'] = 'https://%s' % address
 from oauthenticator.openshift import OpenShiftOAuthenticator
 c.JupyterHub.authenticator_class = OpenShiftOAuthenticator
 
-# Override scope as oauthenticator code doesn't set it correctly.
-# Need to lodge a PR against oauthenticator to have this fixed.
-
-#OpenShiftOAuthenticator.scope = ['user:info']
-
 # Setup authenticator configuration using details from environment.
 
 service_name = os.environ['JUPYTERHUB_SERVICE_NAME']
