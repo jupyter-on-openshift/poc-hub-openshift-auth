@@ -11,7 +11,7 @@
     },
     "parameters": [
         {
-            "name": "JUPYTERHUB_NAME",
+            "name": "APPLICATION_NAME",
             "value": "jupyterhub",
             "required": true
         },
@@ -93,9 +93,9 @@
             "kind": "ConfigMap",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-cfg",
+                "name": "${APPLICATION_NAME}-cfg",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             },
             "data": {
@@ -106,12 +106,12 @@
             "kind": "ServiceAccount",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-hub",
+                "name": "${APPLICATION_NAME}-hub",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 },
                 "annotations": {
-                    "serviceaccounts.openshift.io/oauth-redirectreference.first": "{\"kind\":\"OAuthRedirectReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"Route\",\"name\":\"${JUPYTERHUB_NAME}\"}}",
+                    "serviceaccounts.openshift.io/oauth-redirectreference.first": "{\"kind\":\"OAuthRedirectReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"Route\",\"name\":\"${APPLICATION_NAME}\"}}",
                     "serviceaccounts.openshift.io/oauth-redirecturi.first": "hub/oauth_callback",
                     "serviceaccounts.openshift.io/oauth-want-challenges": "false"
                 }
@@ -121,15 +121,15 @@
             "kind": "RoleBinding",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-edit",
+                "name": "${APPLICATION_NAME}-edit",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             },
             "subjects": [
                 {
                     "kind": "ServiceAccount",
-                    "name": "${JUPYTERHUB_NAME}-hub"
+                    "name": "${APPLICATION_NAME}-hub"
                 }
             ],
             "roleRef": {
@@ -140,9 +140,9 @@
             "kind": "ImageStream",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-hub-s2i",
+                "name": "${APPLICATION_NAME}-hub-s2i",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             }
         },
@@ -150,9 +150,9 @@
             "kind": "BuildConfig",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-hub-s2i",
+                "name": "${APPLICATION_NAME}-hub-s2i",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             },
             "spec": {
@@ -183,7 +183,7 @@
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "${JUPYTERHUB_NAME}-hub-s2i:latest"
+                        "name": "${APPLICATION_NAME}-hub-s2i:latest"
                     }
                 }
             }
@@ -192,9 +192,9 @@
             "kind": "ImageStream",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-hub-img",
+                "name": "${APPLICATION_NAME}-hub-img",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             }
         },
@@ -203,9 +203,9 @@
             "kind": "BuildConfig",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-hub-img",
+                "name": "${APPLICATION_NAME}-hub-img",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             },
             "spec": {
@@ -229,14 +229,14 @@
                     "sourceStrategy": {
                         "from": {
                             "kind": "ImageStreamTag",
-                            "name": "${JUPYTERHUB_NAME}-hub-s2i:latest"
+                            "name": "${APPLICATION_NAME}-hub-s2i:latest"
                         }
                     }
                 },
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "${JUPYTERHUB_NAME}-hub-img:latest"
+                        "name": "${APPLICATION_NAME}-hub-img:latest"
                     }
                 }
             }
@@ -245,9 +245,9 @@
             "apiVersion": "v1",
             "kind": "Secret",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-pgsql",
+                "name": "${APPLICATION_NAME}-pgsql",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             },
             "stringData": {
@@ -258,9 +258,9 @@
             "kind": "DeploymentConfig",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}",
+                "name": "${APPLICATION_NAME}",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             },
             "spec": {
@@ -281,43 +281,43 @@
                             ],
                             "from": {
                                 "kind": "ImageStreamTag",
-                                "name": "${JUPYTERHUB_NAME}-hub-img:latest"
+                                "name": "${APPLICATION_NAME}-hub-img:latest"
                             }
                         }
                     }
                 ],
                 "replicas": 1,
                 "selector": {
-                    "app": "${JUPYTERHUB_NAME}",
-                    "deploymentconfig": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}",
+                    "deploymentconfig": "${APPLICATION_NAME}"
                 },
                 "template": {
                     "metadata": {
                         "labels": {
-                            "app": "${JUPYTERHUB_NAME}",
-                            "deploymentconfig": "${JUPYTERHUB_NAME}"
+                            "app": "${APPLICATION_NAME}",
+                            "deploymentconfig": "${APPLICATION_NAME}"
                         }
                     },
                     "spec": {
-                        "serviceAccountName": "${JUPYTERHUB_NAME}-hub",
+                        "serviceAccountName": "${APPLICATION_NAME}-hub",
                         "initContainers": [
                             {
                                 "name": "wait-for-database",
-                                "image": "${JUPYTERHUB_NAME}-hub-img:latest",
+                                "image": "${APPLICATION_NAME}-hub-img:latest",
                                 "command": [ "wait-for-database" ],
                                 "env": [
                                     {
                                         "name": "JUPYTERHUB_DATABASE_PASSWORD",
                                         "valueFrom": {
                                             "secretKeyRef": {
-                                                "name": "${JUPYTERHUB_NAME}-pgsql",
+                                                "name": "${APPLICATION_NAME}-pgsql",
                                                 "key": "password"
                                             }
                                         }
                                     },
                                     {
                                         "name": "JUPYTERHUB_DATABASE_HOST",
-                                        "value": "${JUPYTERHUB_NAME}-db"
+                                        "value": "${APPLICATION_NAME}-db"
                                     }
                                 ]
                             }
@@ -325,7 +325,7 @@
                         "containers": [
                             {
                                 "name": "jupyterhub",
-                                "image": "${JUPYTERHUB_NAME}-hub-img:latest",
+                                "image": "${APPLICATION_NAME}-hub-img:latest",
                                 "ports": [
                                     {
                                         "containerPort": 8080,
@@ -334,12 +334,12 @@
                                 ],
                                 "env": [
                                     {
-                                        "name": "JUPYTERHUB_SERVICE_NAME",
-                                        "value": "${JUPYTERHUB_NAME}"
+                                        "name": "APPLICATION_NAME",
+                                        "value": "${APPLICATION_NAME}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_NOTEBOOK_IMAGE",
-                                        "value": "${JUPYTERHUB_NAME}-nb-img:latest"
+                                        "value": "${APPLICATION_NAME}-nb-img:latest"
                                     },
                                     {
                                         "name": "JUPYTERHUB_IDLE_TIMEOUT",
@@ -353,14 +353,14 @@
                                         "name": "JUPYTERHUB_DATABASE_PASSWORD",
                                         "valueFrom": {
                                             "secretKeyRef": {
-                                                "name": "${JUPYTERHUB_NAME}-pgsql",
+                                                "name": "${APPLICATION_NAME}-pgsql",
                                                 "key": "password"
                                             }
                                         }
                                     },
                                     {
                                         "name": "JUPYTERHUB_DATABASE_HOST",
-                                        "value": "${JUPYTERHUB_NAME}-db"
+                                        "value": "${APPLICATION_NAME}-db"
                                     },
                                     {
                                         "name": "JUPYTERHUB_COOKIE_SECRET",
@@ -383,7 +383,7 @@
                             {
                                 "name": "config",
                                 "configMap": {
-                                    "name": "${JUPYTERHUB_NAME}-cfg",
+                                    "name": "${APPLICATION_NAME}-cfg",
                                     "defaultMode": 420
                                 }
                             }
@@ -396,9 +396,9 @@
             "kind": "Service",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}",
+                "name": "${APPLICATION_NAME}",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             },
             "spec": {
@@ -417,8 +417,8 @@
                     }
                 ],
                 "selector": {
-                    "app": "${JUPYTERHUB_NAME}",
-                    "deploymentconfig": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}",
+                    "deploymentconfig": "${APPLICATION_NAME}"
                 }
             }
         },
@@ -426,9 +426,9 @@
             "kind": "Route",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}",
+                "name": "${APPLICATION_NAME}",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 },
                 "annotations": {
                     "haproxy.router.openshift.io/hsts_header": "max-age=31536000;includeSubDomains"
@@ -438,7 +438,7 @@
                 "host": "",
                 "to": {
                     "kind": "Service",
-                    "name": "${JUPYTERHUB_NAME}",
+                    "name": "${APPLICATION_NAME}",
                     "weight": 100
                 },
                 "port": {
@@ -453,9 +453,9 @@
             "kind": "PersistentVolumeClaim",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-db",
+                "name": "${APPLICATION_NAME}-db",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             },
             "spec": {
@@ -473,16 +473,16 @@
             "apiVersion": "v1",
             "kind": "DeploymentConfig",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-db",
+                "name": "${APPLICATION_NAME}-db",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             },
             "spec": {
                 "replicas": 1,
                 "selector": {
-                    "app": "${JUPYTERHUB_NAME}",
-                    "deploymentconfig": "${JUPYTERHUB_NAME}-db"
+                    "app": "${APPLICATION_NAME}",
+                    "deploymentconfig": "${APPLICATION_NAME}-db"
                 },
                 "strategy": {
                     "type": "Recreate"
@@ -490,8 +490,8 @@
                 "template": {
                     "metadata": {
                         "labels": {
-                            "app": "${JUPYTERHUB_NAME}",
-                            "deploymentconfig": "${JUPYTERHUB_NAME}-db"
+                            "app": "${APPLICATION_NAME}",
+                            "deploymentconfig": "${APPLICATION_NAME}-db"
                         }
                     },
                     "spec": {
@@ -507,7 +507,7 @@
                                         "name": "POSTGRESQL_PASSWORD",
                                         "valueFrom": {
                                             "secretKeyRef": {
-                                                "name": "${JUPYTERHUB_NAME}-pgsql",
+                                                "name": "${APPLICATION_NAME}-pgsql",
                                                 "key": "password"
                                             }
                                         }
@@ -550,13 +550,13 @@
                             {
                                 "name": "data",
                                 "persistentVolumeClaim": {
-                                    "claimName": "${JUPYTERHUB_NAME}-db"
+                                    "claimName": "${APPLICATION_NAME}-db"
                                 }
                             },
                             {
                                 "name": "config",
                                 "configMap": {
-                                    "name": "${JUPYTERHUB_NAME}-cfg",
+                                    "name": "${APPLICATION_NAME}-cfg",
                                     "defaultMode": 420
                                 }
                             }
@@ -588,9 +588,9 @@
             "kind": "Service",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-db",
+                "name": "${APPLICATION_NAME}-db",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             },
             "spec": {
@@ -603,8 +603,8 @@
                     }
                 ],
                 "selector": {
-                    "app": "${JUPYTERHUB_NAME}",
-                    "deploymentconfig": "${JUPYTERHUB_NAME}-db"
+                    "app": "${APPLICATION_NAME}",
+                    "deploymentconfig": "${APPLICATION_NAME}-db"
                 }
             }
         },
@@ -612,9 +612,9 @@
             "kind": "ImageStream",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-nb-s2i",
+                "name": "${APPLICATION_NAME}-nb-s2i",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             }
         },
@@ -622,9 +622,9 @@
             "kind": "BuildConfig",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-nb-s2i",
+                "name": "${APPLICATION_NAME}-nb-s2i",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             },
             "spec": {
@@ -663,7 +663,7 @@
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "${JUPYTERHUB_NAME}-nb-s2i:latest"
+                        "name": "${APPLICATION_NAME}-nb-s2i:latest"
                     }
                 },
                 "resources": {
@@ -677,9 +677,9 @@
             "apiVersion": "v1",
             "kind": "Secret",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-nb",
+                "name": "${APPLICATION_NAME}-nb",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             },
             "stringData": {
@@ -690,9 +690,9 @@
             "kind": "ImageStream",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-nb-img",
+                "name": "${APPLICATION_NAME}-nb-img",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             }
         },
@@ -700,9 +700,9 @@
             "kind": "BuildConfig",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${JUPYTERHUB_NAME}-nb-img",
+                "name": "${APPLICATION_NAME}-nb-img",
                 "labels": {
-                    "app": "${JUPYTERHUB_NAME}"
+                    "app": "${APPLICATION_NAME}"
                 }
             },
             "spec": {
@@ -723,7 +723,7 @@
                     "secrets": [
                         {
                             "secret" : {
-                                "name": "${JUPYTERHUB_NAME}-nb"
+                                "name": "${APPLICATION_NAME}-nb"
                             },
                             "destinationDir": "/tmp/build"
                         }
@@ -734,14 +734,14 @@
                     "sourceStrategy": {
                         "from": {
                             "kind": "ImageStreamTag",
-                            "name": "${JUPYTERHUB_NAME}-nb-s2i:latest"
+                            "name": "${APPLICATION_NAME}-nb-s2i:latest"
                         }
                     }
                 },
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "${JUPYTERHUB_NAME}-nb-img:latest"
+                        "name": "${APPLICATION_NAME}-nb-img:latest"
                     }
                 },
                 "resources": {

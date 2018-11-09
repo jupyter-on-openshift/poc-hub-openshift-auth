@@ -28,9 +28,9 @@ c.JupyterHub.authenticator_class = OpenShiftOAuthenticator
 
 # Setup authenticator configuration using details from environment.
 
-service_name = os.environ['JUPYTERHUB_SERVICE_NAME']
+application_name = os.environ['APPLICATION_NAME']
 
-service_account_name = '%s-hub' %  service_name
+service_account_name = '%s-hub' %  application_name
 service_account_path = '/var/run/secrets/kubernetes.io/serviceaccount'
 
 with open(os.path.join(service_account_path, 'namespace')) as fp:
@@ -61,7 +61,7 @@ route_list = oapi_client.list_namespaced_route(namespace)
 host = None
 
 for route in route_list.items:
-    if route.metadata.name == service_name:
+    if route.metadata.name == application_name:
         host = route.spec.host
 
 if not host:
