@@ -16,6 +16,16 @@
             "required": true
         },
         {
+            "name": "JUPYTERHUB_BUILDER_IMAGE",
+            "value": "quay.io/jupyteronopenshift/jupyterhub:3.2.2",
+            "required": true
+        },
+        {
+            "name": "NOTEBOOK_BUILDER_IMAGE",
+            "value": "quay.io/jupyteronopenshift/s2i-minimal-notebook-py35:2.3.0",
+            "required": true
+        },
+        {
             "name": "NOTEBOOK_REPOSITORY_URL",
             "value": "https://github.com/jakevdp/PythonDataScienceHandbook",
             "required": true
@@ -144,48 +154,20 @@
                 "labels": {
                     "app": "${APPLICATION_NAME}"
                 }
-            }
-        },
-        {
-            "kind": "BuildConfig",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "${APPLICATION_NAME}-hub-s2i",
-                "labels": {
-                    "app": "${APPLICATION_NAME}"
-                }
             },
             "spec": {
-                "triggers": [
-                    {
-                        "type": "ConfigChange"
-                    },
-                    {
-                        "type": "ImageChange"
-                    }
-                ],
-                "source": {
-                    "type": "Git",
-                    "git": {
-                        "uri": "https://github.com/jupyter-on-openshift/jupyterhub-quickstart.git"
-                    }
+                "lookupPolicy": {
+                    "local": true
                 },
-                "strategy": {
-                    "type": "Source",
-                    "sourceStrategy": {
+                "tags": [
+                    {
+                        "name": "latest",
                         "from": {
-                            "kind": "ImageStreamTag",
-                            "name": "python:3.5",
-                            "namespace": "openshift"
+                            "kind": "DockerImage",
+                            "name": "${JUPYTERHUB_BUILDER_IMAGE}"
                         }
                     }
-                },
-                "output": {
-                    "to": {
-                        "kind": "ImageStreamTag",
-                        "name": "${APPLICATION_NAME}-hub-s2i:latest"
-                    }
-                }
+                ]
             }
         },
         {
@@ -616,61 +598,17 @@
                 "labels": {
                     "app": "${APPLICATION_NAME}"
                 }
-            }
-        },
-        {
-            "kind": "BuildConfig",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "${APPLICATION_NAME}-nb-s2i",
-                "labels": {
-                    "app": "${APPLICATION_NAME}"
-                }
             },
             "spec": {
-                "triggers": [
+                "tags": [
                     {
-                        "type": "ConfigChange"
-                    },
-                    {
-                        "type": "ImageChange"
-                    }
-                ],
-                "source": {
-                    "type": "Git",
-                    "git": {
-                        "uri": "https://github.com/jupyter-on-openshift/jupyter-notebooks.git",
-                        "ref": "1.0.0"
-                    },
-                    "contextDir": "minimal-notebook"
-                },
-                "strategy": {
-                    "type": "Source",
-                    "sourceStrategy": {
+                        "name": "latest",
                         "from": {
-                            "kind": "ImageStreamTag",
-                            "name": "python:${NOTEBOOK_PYTHON_VERSION}",
-                            "namespace": "openshift"
-                        },
-                        "env": [
-                            {
-                                "name": "JUPYTER_INSTALL_LAB",
-                                "value": "${JUPYTERLAB_ENABLED}"
-                            }
-                        ]
+                            "kind": "DockerImage",
+                            "name": "${NOTEBOOK_BUILDER_IMAGE}"
+                        }
                     }
-                },
-                "output": {
-                    "to": {
-                        "kind": "ImageStreamTag",
-                        "name": "${APPLICATION_NAME}-nb-s2i:latest"
-                    }
-                },
-                "resources": {
-                    "limits": {
-                        "memory": "3Gi"
-                    }
-                }
+                ]
             }
         },
         {
