@@ -17,12 +17,12 @@
         },
         {
             "name": "JUPYTERHUB_BUILDER_IMAGE",
-            "value": "quay.io/jupyteronopenshift/jupyterhub:3.2.2",
+            "value": "quay.io/jupyteronopenshift/jupyterhub:3.3.1",
             "required": true
         },
         {
             "name": "NOTEBOOK_BUILDER_IMAGE",
-            "value": "quay.io/jupyteronopenshift/s2i-minimal-notebook-py35:2.3.0",
+            "value": "quay.io/jupyteronopenshift/s2i-minimal-notebook-py35:2.4.0",
             "required": true
         },
         {
